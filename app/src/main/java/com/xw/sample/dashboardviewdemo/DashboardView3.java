@@ -1,5 +1,8 @@
 package com.xw.sample.dashboardviewdemo;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -14,8 +17,10 @@ import android.graphics.Shader;
 import android.graphics.SweepGradient;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -36,7 +41,7 @@ public class DashboardView3 extends View {
     private int mMin = 0; // 最小值
     private int mMax = 600; // 最大值
     private String mHeaderText = "BETA"; // 表头
-    private int mCreditValue = 782; // 信用分
+    private float mCreditValue = 0; // 信用分
     private int mSparkleWidth; // 亮点宽度
     private int mProgressWidth; // 进度圆弧宽度
     private float mLength1; // 刻度顶部相对边缘的长度
@@ -44,7 +49,7 @@ public class DashboardView3 extends View {
 
     private int mPadding;
     private float mCenterX, mCenterY; // 圆心坐标
-    private Paint mPaint,mAniPaint,mCirclePaint;
+    private Paint mPaint, mAniPaint, mCirclePaint;
     private RectF mRectFProgressArc;
     private RectF mRectOutArc;
     private Rect mRectText;
@@ -75,8 +80,8 @@ public class DashboardView3 extends View {
     private void init() {
         mSparkleWidth = dp2px(10);
         mProgressWidth = dp2px(3);
-        mAniPaint=new Paint();
-        mCirclePaint=new Paint();
+        mAniPaint = new Paint();
+        mCirclePaint = new Paint();
         mCirclePaint.setColor(Color.parseColor("#8095B3F9"));
         mAniPaint.setColor(Color.WHITE);
         mPaint = new Paint();
@@ -127,7 +132,7 @@ public class DashboardView3 extends View {
                 getMeasuredWidth() - mPadding - (outGapLength + mProgressWidth / 2f),
                 getMeasuredWidth() - mPadding - (outGapLength + mProgressWidth / 2f)
         );
-        innderCircleRadius=mCenterX-mPadding-(outGapLength + mProgressWidth * 1.5f + innerGapLength * 2 + lengthMarkHeight+dp2px(10));
+        innderCircleRadius = mCenterX - mPadding - (outGapLength + mProgressWidth * 1.5f + innerGapLength * 2 + lengthMarkHeight + dp2px(10));
         mPaint.setTextSize(sp2px(10));
         mPaint.getTextBounds("0", 0, "0".length(), mRectText);
     }
@@ -136,7 +141,7 @@ public class DashboardView3 extends View {
     float cntDegree = mSweepAngle / cnt;
     float curValueDegree = 0;
     int curDegreeCntNum = 0;
-    float innderCircleRadius=0;
+    float innderCircleRadius = 0;
 
     /**
      * 刻度
@@ -175,29 +180,28 @@ public class DashboardView3 extends View {
         canvas.restore();
     }
 
-    private void drawInnerCircle(Canvas canvas)
-    {
+    private void drawInnerCircle(Canvas canvas) {
 //        mPaint.setAlpha(128);
 //        mPaint.setColor(Color.parseColor("#95B3F9"));
 
         canvas.save();
         canvas.translate(mCenterX, mCenterY);
 
-        canvas.drawCircle(0,0,innderCircleRadius,mCirclePaint);
+        canvas.drawCircle(0, 0, innderCircleRadius, mCirclePaint);
         canvas.restore();
     }
 
-    private void drawAniCircle(Canvas canvas)
-    {
+    private void drawAniCircle(Canvas canvas) {
         canvas.save();
         canvas.translate(mCenterX, mCenterY);
 
 
     }
-    public void startAni()
-    {
+
+    public void startAni() {
 
     }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -331,7 +335,7 @@ public class DashboardView3 extends View {
     /**
      * 相对起始角度计算信用分所对应的角度大小
      */
-    private float calculateRelativeAngleWithValue(int value) {
+    private float calculateRelativeAngleWithValue(float value) {
         if (value > mMax) {
             value = mMax;
         } else if (value < mMin) {
@@ -382,7 +386,7 @@ public class DashboardView3 extends View {
         return String.format("评估时间:%s", mDateFormat.format(new Date()));
     }
 
-    public int getCreditValue() {
+    public float getCreditValue() {
         return mCreditValue;
     }
 
@@ -392,12 +396,60 @@ public class DashboardView3 extends View {
      * @param creditValue 信用值
      */
     public void setCreditValue(int creditValue) {
-        if (mCreditValue == creditValue || creditValue < mMin || creditValue > mMax) {
+        if (mCreditValue == creditValue) {
             return;
         }
+        if (creditValue > mMax)
+            creditValue = mMax;
+        if (creditValue <= mMin)
+            creditValue = mMin;
 
-        mCreditValue = creditValue;
-        postInvalidate();
+        // postInvalidate();
+        animateValue(creditValue);
+    }
+
+    ValueAnimator animator;
+    long andmateDuration = 400;
+
+    private void animateValue(final int creditValue) {
+        if (animator != null) {
+            animator.cancel();
+            animator = null;
+        }
+        animator = ValueAnimator.ofFloat(mCreditValue, creditValue);
+
+
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+
+                float value = (float) animation.getAnimatedValue();
+                mCreditValue = value;
+
+//                float radius= (float) animation.getAnimatedValue();
+//                float precent = (radius-minRadius)/(maxRadius-minRadius);
+//                Log.d("xuxu","---anni:"+animation.getAnimatedFraction());
+//                curRadius=radius;
+//                curAlpha= (int) (maxAplha-(maxAplha-minAlpha)*precent);
+                postInvalidate();
+
+            }
+        });
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mCreditValue = creditValue;
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                mCreditValue = creditValue;
+            }
+        });
+        animator.setRepeatCount(0);
+        animator.setInterpolator(new LinearInterpolator());
+        animator.setDuration(andmateDuration);
+        animator.start();
     }
 
 }
