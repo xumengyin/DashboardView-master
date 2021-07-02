@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -11,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
+import android.widget.ImageView;
 
 import java.util.Random;
 
@@ -18,7 +20,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private DashboardView1 mDashboardView1;
     private DashboardView2 mDashboardView2;
-    private DashboardView3 mDashboardView3;
+    private SpeedTestView mDashboardView3;
     private DashboardView4 mDashboardView4;
 
     private boolean isAnimFinished = true;
@@ -32,7 +34,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mDashboardView1 = (DashboardView1) findViewById(R.id.dashboard_view_1);
         mDashboardView2 = (DashboardView2) findViewById(R.id.dashboard_view_2);
-        mDashboardView3 = (DashboardView3) findViewById(R.id.dashboard_view_3);
+        mDashboardView3 = (SpeedTestView) findViewById(R.id.dashboard_view_3);
         mDashboardView4 = (DashboardView4) findViewById(R.id.dashboard_view_4);
 
         mDashboardView1.setOnClickListener(this);
@@ -41,7 +43,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mDashboardView4.setOnClickListener(this);
 
         mDashboardView2.setCreditValueWithAnim(new Random().nextInt(600) + 350);
+        aniStart();
     }
+
+
+    private void aniStart() {
+        ImageView imageView = (ImageView) findViewById(R.id.speedAni);
+        AnimationDrawable animationDrawable = (AnimationDrawable) imageView.getBackground();
+
+        animationDrawable.start();
+    }
+
 
     @Override
     public void onClick(View v) {
@@ -55,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 break;
             case R.id.dashboard_view_3:
-                mDashboardView3.setCreditValue(new Random().nextInt(600));
+                mDashboardView3.setCreditValue(new Random().nextInt(2048));
 
                 break;
             case R.id.dashboard_view_4:

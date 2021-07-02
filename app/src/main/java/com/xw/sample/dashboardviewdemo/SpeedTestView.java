@@ -17,21 +17,20 @@ import android.graphics.Shader;
 import android.graphics.SweepGradient;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
 /**
- * DashboardView style 3 仿最新版芝麻信用分
- * Created by woxingxiao on 2016-11-28.
+ *
  */
 
-public class DashboardView3 extends View {
+public class SpeedTestView extends View {
 
     private int mRadius; // 画布边缘半径（去除padding后的半径）
     private int mStartAngle = 135; // 起始角度
@@ -41,7 +40,7 @@ public class DashboardView3 extends View {
     private int mMin = 0; // 最小值
     private int mMax = 600; // 最大值
     private String mHeaderText = "BETA"; // 表头
-    private float mCreditValue = 0; // 信用分
+    private long mCreditValue = 0; //
     private int mSparkleWidth; // 亮点宽度
     private int mProgressWidth; // 进度圆弧宽度
     private float mLength1; // 刻度顶部相对边缘的长度
@@ -63,15 +62,15 @@ public class DashboardView3 extends View {
     private int innerGapLength = dp2px(10);   //dp
 
 
-    public DashboardView3(Context context) {
+    public SpeedTestView(Context context) {
         this(context, null);
     }
 
-    public DashboardView3(Context context, AttributeSet attrs) {
+    public SpeedTestView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public DashboardView3(Context context, AttributeSet attrs, int defStyleAttr) {
+    public SpeedTestView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         init();
@@ -191,22 +190,12 @@ public class DashboardView3 extends View {
         canvas.restore();
     }
 
-    private void drawAniCircle(Canvas canvas) {
-        canvas.save();
-        canvas.translate(mCenterX, mCenterY);
-
-
-    }
-
-    public void startAni() {
-
-    }
-
+    DecimalFormat df = new java.text.DecimalFormat("#.##");
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        canvas.drawColor(mBgColors[4]);
+       // canvas.drawColor(mBgColors[4]);
 
         /**
          * 画进度圆弧背景
@@ -245,9 +234,18 @@ public class DashboardView3 extends View {
         mPaint.setStyle(Paint.Style.FILL);
         mPaint.setTextSize(sp2px(35));
         mPaint.setTextAlign(Paint.Align.CENTER);
-        String value = String.valueOf(mCreditValue);
-        canvas.drawText(value, mCenterX, mCenterY, mPaint);
-
+        //KB
+        if(mCreditValue>1024)
+        {
+            mHeaderText="MB/s";
+            canvas.drawText(df.format(mCreditValue/1024f), mCenterX, mCenterY, mPaint);
+        }else
+        {
+            mHeaderText="KB/s";
+            canvas.drawText(String.valueOf(mCreditValue), mCenterX, mCenterY, mPaint);
+        }
+        mPaint.setTextSize(sp2px(12));
+        canvas.drawText(mHeaderText, mCenterX, mCenterY + dp2px(20), mPaint);
         /**
          * 画信用描述
          */
@@ -399,8 +397,9 @@ public class DashboardView3 extends View {
         if (mCreditValue == creditValue) {
             return;
         }
-        if (creditValue > mMax)
-            creditValue = mMax;
+       // realCreValue=creditValue;
+//        if (creditValue > mMax)
+//            creditValue = mMax;
         if (creditValue <= mMin)
             creditValue = mMin;
 
@@ -422,9 +421,8 @@ public class DashboardView3 extends View {
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-
-                float value = (float) animation.getAnimatedValue();
-                mCreditValue = value;
+                float value=(float) animation.getAnimatedValue();
+                mCreditValue = (long) value;
 
 //                float radius= (float) animation.getAnimatedValue();
 //                float precent = (radius-minRadius)/(maxRadius-minRadius);

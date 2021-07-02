@@ -1,5 +1,6 @@
 package com.xw.sample.dashboardviewdemo;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -9,11 +10,14 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 
 public class SignalProgressBar extends View {
     Paint mPaint =new Paint();
 
-//    int gap
+    int gap=dp2px(10);
+
+    float progress=0;
     public SignalProgressBar(Context context) {
         super(context);
     }
@@ -28,12 +32,42 @@ public class SignalProgressBar extends View {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
+    ValueAnimator animator;
+    public void startAnimate(long time)
+    {
+        if(animator!=null)
+        {
+            animator.cancel();
+            animator=null;
+        }
+        animator= ValueAnimator.ofFloat(0,100f);
+
+
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                progress= (float) animation.getAnimatedValue();
+                // float precent = (radius-minRadius)/(maxRadius-minRadius);
+                invalidate();
+
+            }
+        });
+        animator.setInterpolator(new LinearInterpolator());
+        animator.setDuration(time);
+        animator.start();
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        mPaint.setStrokeWidth(getMeasuredHeight()/2f);
+        mPaint.setColor(Color.parseColor("#33ffffff"));
+
+        canvas.drawLine(gap,getMeasuredHeight()/2f,getMeasuredWidth()-gap,getMeasuredHeight()/2f,mPaint);
+
         mPaint.setColor(Color.parseColor("#ffffff"));
 
-
+        canvas.drawLine(gap,getMeasuredHeight()/2f,(getMeasuredWidth()-gap*2)*(progress/100f)+gap,getMeasuredHeight()/2f,mPaint);
        // canvas.drawLine();
 
     }
@@ -41,6 +75,8 @@ public class SignalProgressBar extends View {
     private void init()
     {
         mPaint.setAntiAlias(true);
+        mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setStrokeCap(Paint.Cap.ROUND);
 //        mPaint.setColor;
     }
 

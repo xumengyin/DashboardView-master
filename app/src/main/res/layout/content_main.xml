@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#f0f0f0"
+    android:background="#800000ff"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".MainActivity"
@@ -30,7 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
-        <com.xw.sample.dashboardviewdemo.DashboardView3
+        <com.xw.sample.dashboardviewdemo.SpeedTestView
             android:id="@+id/dashboard_view_3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -55,6 +55,12 @@
                 android:id="@+id/singPlusView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
+
+            <ImageView
+                android:id="@+id/speedAni"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/speed_load_ani"/>
 
         </LinearLayout>
 
